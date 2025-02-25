@@ -1,0 +1,25 @@
+{
+  "name": "project-node-db",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "config": "^3.3.12",
+    "express": "^4.21.2",
+    "express-async-handler": "^1.2.0",
+    "joi": "^17.13.3",
+    "joi-password": "^4.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.13.1",
+    "morgan": "^1.10.0",
+    "project-node-db": "file:"
+  }
+}

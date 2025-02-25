@@ -1,0 +1,13 @@
+{
+  "morgan": {
+    "type": "common",
+    "stream": "console"
+  },
+  "accounting": {
+    "roles": ["USER", "ADMIN"],
+    "user_role": "USER",
+    "admin_role": "ADMIN",
+    "salt_rounds": 10,
+    "expiredIn": "1m"
+  }
+}
