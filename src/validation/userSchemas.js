@@ -29,3 +29,14 @@ export const schemaAccount = Joi.object({
   password: passwordSchema,
   role: Joi.string().valid(...config.get("accounting.roles")),
 });
+
+
+export const schemaRole = Joi.object({
+  email: schemaUser,
+  role: Joi.string().valid(...config.get("accounting.roles")),
+});
+
+export const schemaPassowrd = Joi.object({
+  email: schemaUser,
+  password: passwordSchema,
+});

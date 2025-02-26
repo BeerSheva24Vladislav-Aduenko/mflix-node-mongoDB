@@ -13,10 +13,12 @@ const accountingPathes = {
       req.user === req.body.email,
   },
   PUT: {
-    authentication: (req) => "basic",
+    authentication: (req) => "JWT",
     authorization: (req) =>
-      req.user === process.env.ADMIN_USERNAME ||
-      req.user === req.body.email,
+      console.log(req)
+      
+      // req.user === process.env.ADMIN_USERNAME ||
+      // req.user === req.body.email,
   },
   GET: {
     authentication: (req) => "basic",
