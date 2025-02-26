@@ -4,10 +4,11 @@
     "stream": "console"
   },
   "accounting": {
-    "roles": ["USER", "ADMIN"],
+    "roles": ["USER", "ADMIN", "PREMIUM_USER"],
     "user_role": "USER",
     "admin_role": "ADMIN",
+    "premium_role": "PREMIUM_USER",
     "salt_rounds": 10,
-    "expiredIn": "1m"
+    "expiredIn": "1h"
   }
 }

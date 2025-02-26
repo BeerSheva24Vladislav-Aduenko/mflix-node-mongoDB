@@ -1,7 +1,14 @@
 import config from "config";
 import bcrypt from "bcrypt";
 import { createError } from "../errors/errors.js";
-import { addUser, isUserExists } from "../mongo/user.js";
+import {
+  addUser,
+  isUserExists,
+  changeRoleDB,
+  saveNewPassword,
+  setAccountBlockStatusDB,
+  deleteAccountDB
+} from "../mongo/user.js";
 import JwtUtils from "../security/JwtUtils.js";
 
 const userRole = config.get("accounting.user_role");
@@ -19,7 +26,7 @@ class AccountsService {
     await this.#addAccount(account, account.role ?? adminRole);
   }
 
-  async addUserAccount(account) {
+  async addAccount(account) {
     await this.#addAccount(account, account.role ?? userRole);
   }
 
@@ -56,59 +63,34 @@ class AccountsService {
       throw error;
     }
   }
-  updateAccount(account) {
-    const serviceAccount = this.getAccount(account.email);
-    this.#updatePassword(serviceAccount, account.password);
-  }
-
-  async login(account) {
-    try {
-      const { email, password } = account;
-      const user = await isUserExists(email);
-      if (!user) {
-        throw createError(
-          401,
-          `account with email: ${email} doesn't exists`
-        );
-      }
-      await this.checkLogin(user, password);
-      return JwtUtils.getJwt(user);
-    } catch (error) {
-      throw error;
+  async updatePassword(account) {
+    const checkExists = await isUserExists(account.email);
+    if (!checkExists) {
+      throw createError(
+        409,
+        `account with email: ${account.email} doestn't exist`
+      );
     }
+
+    await this.#updatePassword(checkExists, account.password);
+    await saveNewPassword(checkExists._id, checkExists.hashPassword);
   }
 
-  // getAccount(username) {
-  //   const serviceAccount = this.#accounts[username];
-  //   if (!serviceAccount) {
-  //     throw createError(404, `account ${username} doesn't exist`);
-  //   }
-  //   return serviceAccount;
-  // }
-
-  // async delete(username) {
-  //   try {
-  //     this.getAccount(username);
-  //     delete this.#accounts[username];
-  //   } catch (error) {
-  //     console.error("Error deleting account:", error);
-  //     throw error;
-  //   }
-  // }
-
-  #updatePassword(serviceAccount, newPassword) {
-    if (bcrypt.compareSync(newPassword, serviceAccount.hashPassword)) {
+  async #updatePassword(account, newPassword) {
+    if (bcrypt.compareSync(newPassword, account.hashPassword)) {
       throw createError(
         400,
         `new password should be different from the existing one`
       );
     }
-    serviceAccount.hashPassword = bcrypt.hashSync(
+    account.hashPassword = bcrypt.hashSync(
       newPassword,
       config.get("accounting.salt_rounds")
     );
-    serviceAccount.expiration = getExpiration();
+    account.expiration = getExpiration();
+    return account;
   }
+
   async checkLogin(serviceAccount, password) {
     if (
       !serviceAccount ||
@@ -118,6 +100,56 @@ class AccountsService {
     }
     if (new Date().getTime() > serviceAccount.expiration) {
       throw createError(400, "Account's password is expired");
+    }
+  }
+
+  async changeRole(account) {
+    const checkExists = await isUserExists(account.email);
+    if (!checkExists) {
+      throw createError(
+        404,
+        `account with email: ${account.email} doesn’t exist`
+      );
+    }
+    const result = await changeRoleDB(account.email, account.role);
+    return result;
+  }
+
+  async getAccount(email) {
+    const checkExists = await isUserExists(email);
+    if (!checkExists) {
+      throw createError(404, `account with email: ${email} doesn’t exist`);
+    }
+    return checkExists;
+  }
+
+  async setAccountBlockStatus(email, blockStatus) {
+    const checkExists = await isUserExists(email);
+    if (!checkExists) {
+      throw createError(404, `account with email: ${email} doesn’t exist`);
+    }
+    await setAccountBlockStatusDB(email, blockStatus);
+  }
+
+  async delete(email) {
+    const checkExists = await isUserExists(email);
+    if (!checkExists) {
+      throw createError(404, `account with email: ${email} doesn’t exist`);
+    }
+    await deleteAccountDB(email);
+  }
+
+  async login(account) {
+    try {
+      const { email, password } = account;
+      const user = await isUserExists(email);
+      if (!user) {
+        throw createError(401, `account with email: ${email} doesn't exists`);
+      }
+      await this.checkLogin(user, password);
+      return JwtUtils.getJwt(user);
+    } catch (error) {
+      throw error;
     }
   }
 }

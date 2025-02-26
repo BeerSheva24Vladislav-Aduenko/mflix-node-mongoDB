@@ -24,8 +24,10 @@ function jwtAuthentication(req, authHeader) {
     const payload = JwtUtils.verifyJwt(token);
     req.user = payload.sub;
     req.role = payload.role;
-    req.authType = "jwt";
-  } catch (error) {}
+    req.authType = "JWT";
+  } catch (error) {
+    throw error
+  }
 }
 async function basicAuthentication(req, authHeader) {
   const userNamePassword64 = authHeader.substring(BASIC.length); //username:password
@@ -52,7 +54,7 @@ async function basicAuthentication(req, authHeader) {
     }
   } catch (error) {}
 }
-export function auth(paths) {
+export function auth(paths) {  
   return (req, res, next) => {
     const { authentication, authorization } = paths[req.method];
     if (!authorization) {
