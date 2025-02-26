@@ -24,7 +24,13 @@ class AccountsService {
   }
 
   async #addAccount(account, role) {
-    await isUserExists(account.email);
+    const checkExists = await isUserExists(account.email);
+    if (checkExists) {
+      throw createError(
+        409,
+        `account with email: ${account.email} already exists`
+      );
+    }
     const serviceAccount = await this.#toServiceAccount(account, role);
     await addUser(serviceAccount);
   }
@@ -54,6 +60,24 @@ class AccountsService {
     const serviceAccount = this.getAccount(account.email);
     this.#updatePassword(serviceAccount, account.password);
   }
+
+  async login(account) {
+    try {
+      const { email, password } = account;
+      const user = await isUserExists(email);
+      if (!user) {
+        throw createError(
+          401,
+          `account with email: ${email} doesn't exists`
+        );
+      }
+      await this.checkLogin(user, password);
+      return JwtUtils.getJwt(user);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // getAccount(username) {
   //   const serviceAccount = this.#accounts[username];
   //   if (!serviceAccount) {
@@ -61,17 +85,7 @@ class AccountsService {
   //   }
   //   return serviceAccount;
   // }
-  // async login(account) {
-  //   try {
-  //     const { email, password } = account;
-  //     const serviceAccount = this.#accounts[email];
-  //     await this.checkLogin(serviceAccount, password);
-  //     return JwtUtils.getJwt(this.#accounts[email]);
-  //   } catch (error) {
-  //     console.error("Login error:", error);
-  //     throw error;
-  //   }
-  // }
+
   // async delete(username) {
   //   try {
   //     this.getAccount(username);
