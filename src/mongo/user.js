@@ -22,8 +22,5 @@ export async function addUser(account) {
 }
 export async function isUserExists(email) {
   const user = await usersCollection.findOne({ _id: email });
-  if (user) {
-    throw createError(409, `account with email: ${email} already exists`);
-  }
+  return user;
 }
-
