@@ -44,7 +44,7 @@ favoritesRoute.put(
 favoritesRoute.delete(
   "/",
   validator(schemaDeleteFavorite),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res) => {    
     const deletedFavorite = await favoritesService.deleteFavorite(req.body);
     res.status(200).json(deletedFavorite);
   })

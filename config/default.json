@@ -1,14 +1,31 @@
 {
   "morgan": {
-    "type": "common",
-    "stream": "console"
+      "type": "dev",
+      "stream": "console",
+      "stream_auth": "console"
   },
   "accounting": {
-    "roles": ["USER", "ADMIN", "PREMIUM_USER"],
-    "user_role": "USER",
-    "admin_role": "ADMIN",
-    "premium_role": "PREMIUM_USER",
-    "salt_rounds": 10,
-    "expiredIn": "1h"
+      "roles": ["USER", "PREMIUM_USER", "ADMIN"],
+      "user_role": "USER",
+      "admin_role": "ADMIN",
+      "premium_role": "PREMIUM_USER",
+      "salt_rounds":  10,
+      "expired_in": "1h" 
+  },
+  "db": {
+      "db_name": "sample_mflix",
+      "movies_collection": "movies",
+      "comments_collection": "comments",
+      "favorites_collection": "favorites",
+      "accounts_collection": "users"
+  },
+  "validation": {
+      "start_cinema_epoch": 1900,
+      "text_min_length": 3,
+      "max_amount": 20
+  },
+  "limitation": {
+      "user_requests_count": 10,
+      "user_requests_time": "1m" 
   }
 }

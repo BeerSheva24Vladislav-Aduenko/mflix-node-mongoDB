@@ -4,6 +4,7 @@ import { errorHandler } from "../errors/errors.js";
 import { logger } from "../logger/logger.js";
 import accountsRoute from "../routes/accounts.js";
 import favoritesRoute from "../routes/favorites.js";
+import moviesRoute from "../routes/movies.js";
 
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(authenticate());
 
 app.use("/accounts", accountsRoute);
 app.use("/favorites", favoritesRoute);
+app.use("/movies", moviesRoute);
 
 app.use((req, res) => {
   res.status(404).send(`path ${req.path} is not found`);
