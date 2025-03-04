@@ -31,7 +31,7 @@ class AccountsService {
   }
 
   async #addAccount(account, role) {
-    const checkExists = await isUserExists(account.email);
+    const checkExists = await this.#accounts.findOne({ _id: account.email });
     if (checkExists) {
       throw createError(
         409,
