@@ -1,0 +1,8 @@
+::1 - - [09/Mar/2025:22:01:36 +0000] "POST /accounts/user HTTP/1.1" 409 52 "-" "PostmanRuntime/7.43.0"
+::1 - - [09/Mar/2025:22:01:42 +0000] "POST /accounts/user HTTP/1.1" 201 29 "-" "PostmanRuntime/7.43.0"
+::1 - - [09/Mar/2025:22:06:45 +0000] "POST /accounts/admin HTTP/1.1" 201 30 "-" "PostmanRuntime/7.43.0"
+::1 - - [09/Mar/2025:22:07:45 +0000] "PUT /accounts/block/admin@gmail.com HTTP/1.1" 200 15 "-" "PostmanRuntime/7.43.0"
+::1 - - [09/Mar/2025:22:07:52 +0000] "PUT /accounts/block/admin@gmail.com HTTP/1.1" 200 15 "-" "PostmanRuntime/7.43.0"
+::1 - - [09/Mar/2025:22:08:06 +0000] "POST /accounts/usersd HTTP/1.1" 404 34 "-" "PostmanRuntime/7.43.0"
+::1 - - [09/Mar/2025:22:08:55 +0000] "POST /accounts/usersd HTTP/1.1" 404 34 "-" "PostmanRuntime/7.43.0"
+::1 - - [09/Mar/2025:22:09:33 +0000] "POST /accounts/usersd HTTP/1.1" 404 34 "-" "PostmanRuntime/7.43.0"

@@ -21,7 +21,6 @@
   },
   "validation": {
       "start_cinema_epoch": 1900,
-      "text_min_length": 3,
       "max_amount": 20
   },
   "limitation": {
