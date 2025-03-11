@@ -148,8 +148,9 @@ class AccountsService {
     try {
       const { email, password } = account;
       const user = await this.getAccount(email);
-      console.log(user);
-      
+      if (user.blocked) {
+        throw createError(400, "account is blocked");
+      }
       await this.checkLogin(user, password);
       return JwtUtils.getJwt(user);
     } catch (error) {

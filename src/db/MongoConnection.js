@@ -17,18 +17,14 @@ class MongoConnection {
   }
 
   async close() {
-    await this.#client.close();
+    try {
+      await this.#client.close();
+      logger.info("MongoDB connection closed seccessfully");
+    } catch (error) {
+      logger.error("MongoDB connection close failed", error);
+      throw error
+    }
   }
-
-  // async close() {
-  //   try {
-  //     await this.#client.close();
-  //     logger.info("MongoDB connection closed seccessfully");
-  //   } catch (error) {
-  //     logger.error("MongoDB connection close failed", error);
-  //     throw error
-  //   }
-  // }
 }
 
 const dbName = config.get("db.db_name");
