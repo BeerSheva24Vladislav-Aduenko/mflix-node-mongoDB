@@ -1,5 +1,6 @@
 import { MongoClient } from "mongodb";
 import config from "config";
+import  logger  from "../logger/winstonLogging.js";
 
 const { MONGO_CONNECTION, MONGO_PASSWORD, MONGO_CLUSTER } = process.env;
 
@@ -18,6 +19,16 @@ class MongoConnection {
   async close() {
     await this.#client.close();
   }
+
+  // async close() {
+  //   try {
+  //     await this.#client.close();
+  //     logger.info("MongoDB connection closed seccessfully");
+  //   } catch (error) {
+  //     logger.error("MongoDB connection close failed", error);
+  //     throw error
+  //   }
+  // }
 }
 
 const dbName = config.get("db.db_name");
