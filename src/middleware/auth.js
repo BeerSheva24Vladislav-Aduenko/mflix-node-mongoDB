@@ -4,21 +4,25 @@ import accountingService from "../service/AccountsService.js";
 
 const BEARER = "Bearer ";
 const BASIC = "Basic ";
-export function authenticate() {
+export function authenticate(paths) {
   return async (req, res, next) => {
-    const authHeader = req.header("Authorization");
-    if (authHeader) {
-      if (authHeader.startsWith(BEARER)) {
-        jwtAuthentication(req, authHeader);
-      } else if (authHeader.startsWith(BASIC)) {
-        await basicAuthentication(req, authHeader);
+    try {
+      const authHeader = req.header("Authorization");
+      if (authHeader) {
+        if (authHeader.startsWith(BEARER)) {
+          await jwtAuthentication(req, authHeader);
+        } else if (authHeader.startsWith(BASIC)) {
+          await basicAuthentication(req, authHeader);
+        }
+        await accountingService.trackUserRequest(req.user);
       }
+      next();
+    } catch (error) {
+      next(error);
     }
-
-    next();
   };
 }
-function jwtAuthentication(req, authHeader) {
+async function jwtAuthentication(req, authHeader) {
   const token = authHeader.substring(BEARER.length);
   try {
     const payload = JwtUtils.verifyJwt(token);
