@@ -14,7 +14,6 @@ export function authenticate(paths) {
         } else if (authHeader.startsWith(BASIC)) {
           await basicAuthentication(req, authHeader);
         }
-        await accountingService.trackUserRequest(req.user);
       }
       next();
     } catch (error) {
@@ -22,15 +21,15 @@ export function authenticate(paths) {
     }
   };
 }
-async function jwtAuthentication(req, authHeader) {
+async function jwtAuthentication(req, authHeader) {  
   const token = authHeader.substring(BEARER.length);
   try {
     const payload = JwtUtils.verifyJwt(token);
-    req.user = payload.sub;
+    req.user = payload.email;
     req.role = payload.role;
     req.authType = "JWT";
   } catch (error) {
-    throw error
+    throw createError(401, "Token isn't valid");
   }
 }
 async function basicAuthentication(req, authHeader) {
@@ -56,20 +55,22 @@ async function basicAuthentication(req, authHeader) {
       req.role = serviceAccount.role;
       req.authType = "basic";
     }
-  } catch (error) {}
+  } catch (error) {
+    throw  createError(401, "wrong credentials");
+  }
 }
 export function auth(paths) {  
   return (req, res, next) => {
     const { authentication, authorization } = paths[req.method];
     if (!authorization) {
-      throw createError(500, "security configuration not provided");
+      throw createError(500, "Security configuration not provided");
     }
     if (authentication(req)) {
       if (req.authType !== authentication(req)) {
-        throw createError(401, "no required authentication");
+        throw createError(401, "No required authentication");
       }
       if (!authorization(req)) {
-        throw createError(403, "");
+        throw createError(403, "Access denied");
       }
     }
     next();

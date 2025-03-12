@@ -7,9 +7,11 @@ import {
   schemaFavorite,
 } from "../validation/favotiteSchemas.js";
 import favoritesService from "../service/FavoriteService.js";
+import favoritesPathes from "../paths/favoritesPathes.js";
+import { auth } from "../middleware/auth.js";
 
 const favoritesRoute = express.Router();
-// favotitesRoute.use(auth(accountingPathes));
+favoritesRoute.use(auth(favoritesPathes));
 
 //add in favorites
 favoritesRoute.post(

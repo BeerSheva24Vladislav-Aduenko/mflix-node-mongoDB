@@ -7,8 +7,11 @@ import {
   schemaMoviesById,
   schemaUpdateRating,
 } from "../validation/movieSchemas.js";
+import { auth } from "../middleware/auth.js";
+import moviesPathes from "../paths/moviesPathes.js";
 
 const moviesRoute = express.Router();
+moviesRoute.use(auth(moviesPathes));
 
 // get most rated movies
 moviesRoute.get(

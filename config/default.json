@@ -25,6 +25,6 @@
   },
   "limitation": {
       "user_requests_count": 10,
-      "user_requests_time": "1m" 
+      "user_time_limit":3600000
   }
 }

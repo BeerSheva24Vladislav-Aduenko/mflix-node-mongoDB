@@ -10,8 +10,11 @@ import {
   schemaGetCommentsByUserId,
 } from "../validation/commentsSchemas.js";
 import { validator } from "../middleware/validation.js";
+import commentsPathes from "../paths/commentsPathes.js";
+import { auth } from "../middleware/auth.js";
 
 const commentsRoute = express.Router();
+commentsRoute.use(auth(commentsPathes));
 
 // get a movie comments
 commentsRoute.get(

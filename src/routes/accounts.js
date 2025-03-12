@@ -7,19 +7,19 @@ import {
   schemaPassowrd,
 } from "../validation/userSchemas.js";
 import accountingService from "../service/AccountsService.js";
-import { authenticate, auth } from "../middleware/auth.js";
-// import accountingPathes from "../paths/accountingPathes.js";
+import { auth } from "../middleware/auth.js";
+import accountingPathes from "../paths/accountingPathes.js";
 
 const accountsRoute = express.Router();
-// accountsRoute.use(auth(accountingPathes));
+accountsRoute.use(auth(accountingPathes));
 
 // add admin account
 accountsRoute.post(
   "/admin",
   validator(schemaAccount),
   asyncHandler(async (req, res) => {
-    await accountingService.addAdminAccount(req.body);
-    res.status(201).send("account with role: Admin added");
+    const account = await accountingService.addAdminAccount(req.body);
+    res.status(201).send(account);
   })
 );
 
@@ -28,8 +28,8 @@ accountsRoute.post(
   "/user",
   validator(schemaAccount),
   asyncHandler(async (req, res) => {
-    await accountingService.addAccount(req.body);
-    res.status(201).send("account with role: User added");
+    const account = await accountingService.addAccount(req.body);
+    res.status(201).send(account);
   })
 );
 

@@ -81,16 +81,32 @@ class MoviesService {
 
   async addRate(req) {
     const { imdbId, rating } = req.body;
+
     const movie = await this.#movies.findOne({ "imdb.id": imdbId });
     if (!movie) {
       throw createError(404, `movie with imdbId ${imdbId} doesn't exist`);
     }
+
+    const ratedBy = movie.ratedBy || [];
+    if (ratedBy.includes(req.user)) {
+      throw createError(403, `User ${req.user} already rated movie ${imdbId}`);
+    }
+
     const updatedMovie = await this.#movies.findOneAndUpdate(
       { "imdb.id": imdbId },
-      { $set: { "imdb.rating": rating } },
+      { $set: { "imdb.rating": rating }, $push: { ratedBy: req.user } },
       { returnDocument: "after" }
     );
-    return updatedMovie
+    
+    return updatedMovie;
+  }
+
+  async hasUserRated(userEmail, imdbId) {
+    const movie = await this.#movies.findOne({ "imdb.id": imdbId });
+    if (!movie) {
+      throw createError(404, `movie with imdbId ${imdbId} doesn't exist`);
+    }
+    return movie ? (movie.ratedBy || []).includes(userEmail) : false;
   }
 }
 const moviesService = new MoviesService();

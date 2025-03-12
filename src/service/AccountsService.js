@@ -24,10 +24,12 @@ class AccountsService {
 
   async addAdminAccount(account) {
     await this.#addAccount(account, adminRole);
+    return await this.getAccount(account.email);
   }
 
   async addAccount(account) {
     await this.#addAccount(account, userRole);
+    return await this.getAccount(account.email);
   }
 
   async #addAccount(account, role) {
@@ -56,6 +58,8 @@ class AccountsService {
         hashPassword,
         expiration,
         blocked: false,
+        requestCount: 0, 
+        lastResetTime: null,
       };
       return serviceAccount;
     } catch (error) {
@@ -65,15 +69,24 @@ class AccountsService {
   }
 
   async getAccount(email) {
-    const checkExists = await this.#accounts.findOne({ _id: email });
+    const checkExists = await this.#accounts.findOne({ _id: email });    
     if (!checkExists) {
       throw createError(404, `account with email: ${email} doesn’t exist`);
     }
     return checkExists;
   }
 
+  async updateAccount(email, updateData) {
+    const result = await this.#accounts.findOneAndUpdate(
+      { _id: email },
+      { $set: updateData },
+      { returnDocument: "after", upsert: true } // Создаёт аккаунт, если его нет
+    );
+    return result.value;
+  }
+
   async updatePassword(account) {
-    await getAccount(account.email);
+    const checkExists = await this.getAccount(account.email);
     const newHashPassword = await this.#updatePassword(
       checkExists,
       account.password
