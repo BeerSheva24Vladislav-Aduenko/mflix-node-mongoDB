@@ -21,7 +21,7 @@ export function authenticate(paths) {
     }
   };
 }
-async function jwtAuthentication(req, authHeader) {  
+async function jwtAuthentication(req, authHeader) {
   const token = authHeader.substring(BEARER.length);
   try {
     const payload = JwtUtils.verifyJwt(token);
@@ -50,29 +50,36 @@ async function basicAuthentication(req, authHeader) {
       const serviceAccount = accountingService.getAccount(
         userNamePasswordArr[0]
       );
-     await accountingService.checkLogin(serviceAccount, userNamePasswordArr[1]);
+      await accountingService.checkLogin(
+        serviceAccount,
+        userNamePasswordArr[1]
+      );
       req.user = userNamePasswordArr[0];
       req.role = serviceAccount.role;
       req.authType = "basic";
     }
   } catch (error) {
-    throw  createError(401, "wrong credentials");
+    throw createError(401, "wrong credentials");
   }
 }
-export function auth(paths) {  
-  return (req, res, next) => {
-    const { authentication, authorization } = paths[req.method];
-    if (!authorization) {
-      throw createError(500, "Security configuration not provided");
-    }
-    if (authentication(req)) {
-      if (req.authType !== authentication(req)) {
-        throw createError(401, "No required authentication");
+export function auth(paths) {
+  return async (req, res, next) => {
+    try {
+      const { authentication, authorization } = paths[req.method];
+      if (!authorization) {
+        throw createError(500, "Security configuration not provided");
       }
-      if (!authorization(req)) {
-        throw createError(403, "Access denied");
+      if (authentication(req)) {
+        if (req.authType !== authentication(req)) {
+          throw createError(401, "No required authentication");
+        }
+        if (!(await authorization(req))) {
+          throw createError(403, "Access denied");
+        }
       }
+      next();
+    } catch (error) {
+      next(error);
     }
-    next();
   };
 }

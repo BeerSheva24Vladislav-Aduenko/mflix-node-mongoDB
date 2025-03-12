@@ -2,6 +2,7 @@ import config from "config";
 import { createError } from "../errors/errors.js";
 import { ObjectId } from "mongodb";
 import mongoConnection from "../db/MongoConnection.js";
+import accountingService from "./AccountsService.js";
 
 class MoviesService {
   #movies;
@@ -10,6 +11,7 @@ class MoviesService {
       config.get("db.movies_collection")
     );
   }
+
   async getMovie(id) {
     const objectId = ObjectId.createFromHexString(id);
     const movie = await this.#movies.findOne({ _id: objectId });
@@ -87,26 +89,24 @@ class MoviesService {
       throw createError(404, `movie with imdbId ${imdbId} doesn't exist`);
     }
 
-    const ratedBy = movie.ratedBy || [];
-    if (ratedBy.includes(req.user)) {
-      throw createError(403, `User ${req.user} already rated movie ${imdbId}`);
-    }
-
     const updatedMovie = await this.#movies.findOneAndUpdate(
       { "imdb.id": imdbId },
-      { $set: { "imdb.rating": rating }, $push: { ratedBy: req.user } },
+      {
+        $addToSet: { ratedBy: { user: req.user, rating } },
+      },
       { returnDocument: "after" }
     );
-    
+
     return updatedMovie;
   }
 
   async hasUserRated(userEmail, imdbId) {
+    await accountingService.getAccount(userEmail);
     const movie = await this.#movies.findOne({ "imdb.id": imdbId });
-    if (!movie) {
-      throw createError(404, `movie with imdbId ${imdbId} doesn't exist`);
+    if (!movie || !movie.ratedBy) {
+      return false;
     }
-    return movie ? (movie.ratedBy || []).includes(userEmail) : false;
+    return movie.ratedBy.some((entry) => entry.user === userEmail);
   }
 }
 const moviesService = new MoviesService();

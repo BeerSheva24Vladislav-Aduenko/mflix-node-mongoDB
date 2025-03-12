@@ -58,8 +58,8 @@ class AccountsService {
         hashPassword,
         expiration,
         blocked: false,
-        requestCount: 0, 
-        lastResetTime: null,
+        requestCount: 0,
+        requestsStamp: new Date().getTime(),
       };
       return serviceAccount;
     } catch (error) {
@@ -69,7 +69,7 @@ class AccountsService {
   }
 
   async getAccount(email) {
-    const checkExists = await this.#accounts.findOne({ _id: email });    
+    const checkExists = await this.#accounts.findOne({ _id: email });
     if (!checkExists) {
       throw createError(404, `account with email: ${email} doesn’t exist`);
     }
@@ -80,7 +80,7 @@ class AccountsService {
     const result = await this.#accounts.findOneAndUpdate(
       { _id: email },
       { $set: updateData },
-      { returnDocument: "after", upsert: true } // Создаёт аккаунт, если его нет
+      { returnDocument: "after", upsert: true }
     );
     return result.value;
   }
@@ -170,7 +170,30 @@ class AccountsService {
       throw error;
     }
   }
+
+  async checkRequestLimit(email, maxRequests) {
+    const user = await this.getAccount(email);
+    if (user.requestCount >= maxRequests) {
+      throw createError(429, "Too many requests");
+    }
+    await this.updateAccount(email, {
+      requestCount: user.requestCount + 1,
+    });
+
+    return true;
+  }
+
+  async checkTimeLimit(email, timeLimit) {
+    const user = await this.getAccount(email);
+    const now = Date.now();
+
+    if (now - user.requestsStamp >= timeLimit) {
+      throw createError(429, "Limit time exceeded");
+    }
+    return true;
+  }
 }
+
 function getExpiration() {
   const expiredIn = getExpirationIn();
   return new Date().getTime() + expiredIn;
