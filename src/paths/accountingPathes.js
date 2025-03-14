@@ -14,11 +14,11 @@ const accountingPathes = {
     authorization: (req) => {
       if (req.path.includes("role")) {
         return req.role === "ADMIN";
-      } else if (req.path.includes("block") || req.path.includes("unblock")) {
-        return req.role === "ADMIN";
-      } else {
-        return req.role === "ADMIN" || req.user === req.body.email;
       }
+      if (req.path.includes("block") || req.path.includes("unblock")) {
+        return req.role === "ADMIN";
+      }
+      return req.role === "ADMIN" || req.user === req.body.email;
     },
   },
   GET: {
